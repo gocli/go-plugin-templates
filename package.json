@@ -1,0 +1,42 @@
+{
+  "name": "go-plugin-templates",
+  "version": "0.0.0",
+  "description": "Go plugin to use templates",
+  "main": "dist/plugin.js",
+  "scripts": {
+    "start": "npm run reset && rollup -cw",
+    "test": "standard -v | snazzy",
+    "reset": "rimraf dist",
+    "build": "npm run reset && rollup -c",
+    "prepublishOnly": "npm run test && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gocli/go-plugin-templates.git"
+  },
+  "keywords": [
+    "template",
+    "templates",
+    "boilerplate",
+    "ejs",
+    "cli"
+  ],
+  "author": "Stanislav Termosa <termosa.stanislav@gmail.com> (https://github.com/termosa)",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "bugs": {
+    "url": "https://github.com/gocli/go-plugin-templates/issues"
+  },
+  "homepage": "https://github.com/gocli/go-plugin-templates#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.56.3",
+    "rollup-plugin-babel": "^3.0.3",
+    "rollup-plugin-standard": "^1.0.0",
+    "standard": "^11.0.0"
+  }
+}
