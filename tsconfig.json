@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "allowJs": true,
+    "checkJs": true,
+    "sourceMap": true,
+    "removeComments": true,
+    "downlevelIteration": true,
+
+    "strict": true,
+
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+
+    "esModuleInterop": true
+  }
+}

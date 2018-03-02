@@ -4,10 +4,10 @@
   "description": "Go plugin to use templates",
   "main": "dist/plugin.js",
   "scripts": {
-    "start": "npm run reset && rollup -cw",
-    "test": "standard -v | snazzy",
+    "start": "npm run build -- --watch",
+    "test": "tslint --project . --format stylish",
     "reset": "rimraf dist",
-    "build": "npm run reset && rollup -c",
+    "build": "npm run reset && webpack",
     "prepublishOnly": "npm run test && npm run build"
   },
   "repository": {
@@ -31,12 +31,15 @@
   },
   "homepage": "https://github.com/gocli/go-plugin-templates#readme",
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
     "rimraf": "^2.6.2",
-    "rollup": "^0.56.3",
-    "rollup-plugin-babel": "^3.0.3",
-    "rollup-plugin-standard": "^1.0.0",
-    "standard": "^11.0.0"
+    "ts-loader": "^4.0.0",
+    "tslint": "^5.9.1",
+    "tslint-loader": "^3.6.0",
+    "typescript": "^2.7.2",
+    "webpack": "^4.0.1",
+    "webpack-cli": "^2.0.9"
+  },
+  "dependencies": {
+    "@types/node": "^9.4.6"
   }
 }
