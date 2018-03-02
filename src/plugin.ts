@@ -1,4 +1,5 @@
-const HandlebarsPlugin = (proto: object, options = {}): void => {}
+// tslint:disable-next-line:no-empty
+const TemplatesPlugin = (): void => {}
 
-const install = HandlebarsPlugin
-export { install, HandlebarsPlugin }
+const install = TemplatesPlugin
+export { install, TemplatesPlugin }
