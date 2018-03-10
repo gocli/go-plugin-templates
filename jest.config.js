@@ -10,6 +10,7 @@ module.exports = {
       statements: 0
     }
   },
+  moduleFileExtensions: ['ts', 'js', 'json', 'd.ts'],
   transform: {
     '^.+\\.ts$': 'ts-jest'
   }

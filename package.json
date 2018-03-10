@@ -8,6 +8,7 @@
     "lint:js": "standard -v --global describe --global it --global expect | snazzy",
     "lint:ts": "tslint --project . --format stylish",
     "unit": "jest --coverage",
+    "unit:watch": "jest --coverage --watchAll",
     "coverage": "npm run unit; opn coverage/lcov-report/index.html",
     "test": "npm run lint:js && npm run lint:ts && npm run unit",
     "reset": "rimraf dist",
@@ -37,8 +38,10 @@
   "devDependencies": {
     "@types/node": "^9.4.6",
     "jest": "^22.4.2",
+    "opn-cli": "^3.1.0",
     "rimraf": "^2.6.2",
     "snazzy": "^7.1.1",
+    "standard": "^11.0.0",
     "ts-jest": "^22.4.1",
     "ts-loader": "^4.0.0",
     "tslint": "^5.9.1",
@@ -47,8 +50,5 @@
     "webpack": "^4.0.1",
     "webpack-cli": "^2.0.9"
   },
-  "dependencies": {
-    "opn-cli": "^3.1.0",
-    "standard": "^11.0.0"
-  }
+  "dependencies": {}
 }
