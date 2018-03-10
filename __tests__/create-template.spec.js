@@ -1,14 +1,13 @@
 const { createTemplate } = require('../src/create-template')
 const fs = require('fs')
 
-const tempDir = `${__dirname}/tests-temp-files`
-
-const generateFileName = (name = '') => {
-  generateFileName.id = generateFileName.id || 0
-  return `${tempDir}/file-${generateFileName.id++}${name ? `-${name}` : name}`
-}
+const tempDir = `${__dirname}/temp-createTemplate-files`
 
 describe('Create Template', () => {
+  afterAll(() => {
+    fs.removeSync(tempDir)
+  })
+
   it('generates function with one string argument required', () => {
     expect(() => createTemplate()).toThrowError(/required/i, 'should contain "required"')
     expect(() => createTemplate(1)).toThrowError(/string/i, 'should contain "string"')
@@ -41,7 +40,7 @@ describe('Create Template', () => {
   })
 
   it('write file if second argument is given', async () => {
-    const filename = generateFileName('async-tempalte-rendering')
+    const filename = `${tempDir}/async-tempalte-rendering`
     const render = createTemplate('hello')
 
     expect(() => render({}, [])).toThrowError(/string/)
@@ -54,16 +53,12 @@ describe('Create Template', () => {
   })
 
   it('write file synchonously', () => {
-    const filename = generateFileName('sync-template-rendering')
+    const filename = `${tempDir}/sync-template-rendering`
     const render = createTemplate('halo')
 
     expect(() => render({}, [])).toThrowError(/string/)
 
     render.sync({}, filename)
     expect(fs.readFileSync(filename).toString()).toBe('halo')
-  })
-
-  afterAll(() => {
-    fs.removeSync(tempDir)
   })
 })

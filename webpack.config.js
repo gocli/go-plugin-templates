@@ -22,6 +22,7 @@ module.exports = {
     extensions: [ '.ts', '.js' ]
   },
   output: {
+    libraryTarget: 'commonjs',
     filename: 'plugin.js',
     path: path.resolve(__dirname, 'dist')
   }

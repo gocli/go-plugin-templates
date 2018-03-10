@@ -5,7 +5,7 @@
   "main": "dist/plugin.js",
   "scripts": {
     "start": "npm run build -- --watch",
-    "lint:js": "standard -v --global describe --global it --global expect --global afterAll | snazzy",
+    "lint:js": "standard -v --global describe --global it --global expect --global afterAll --global beforeAll | snazzy",
     "lint:ts": "tslint --project . --format stylish",
     "unit": "jest --coverage",
     "unit:watch": "jest --coverage --watchAll",
@@ -36,6 +36,8 @@
   },
   "homepage": "https://github.com/gocli/go-plugin-templates#readme",
   "devDependencies": {
+    "@types/ejs": "^2.5.0",
+    "@types/fs-extra": "^5.0.1",
     "@types/node": "^9.4.6",
     "jest": "^22.4.2",
     "opn-cli": "^3.1.0",
@@ -51,7 +53,9 @@
     "webpack-cli": "^2.0.9"
   },
   "dependencies": {
+    "callsite": "^1.0.0",
     "ejs": "^2.5.7",
-    "fs-extra": "^5.0.0"
+    "fs-extra": "^5.0.0",
+    "globby": "^8.0.1"
   }
 }
