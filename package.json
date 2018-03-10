@@ -5,7 +5,7 @@
   "main": "dist/plugin.js",
   "scripts": {
     "start": "npm run build -- --watch",
-    "lint:js": "standard -v --global describe --global it --global expect | snazzy",
+    "lint:js": "standard -v --global describe --global it --global expect --global afterAll | snazzy",
     "lint:ts": "tslint --project . --format stylish",
     "unit": "jest --coverage",
     "unit:watch": "jest --coverage --watchAll",
@@ -50,5 +50,8 @@
     "webpack": "^4.0.1",
     "webpack-cli": "^2.0.9"
   },
-  "dependencies": {}
+  "dependencies": {
+    "ejs": "^2.5.7",
+    "fs-extra": "^5.0.0"
+  }
 }

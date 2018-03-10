@@ -1,9 +1,15 @@
-interface ITemplate {
+interface IRenderSync {
+  (context: any, destination: string): void
+}
+
+interface IRender {
   (context: any): string
+  (context: any, destination: string): Promise
+  sync: IRenderSync
 }
 
 interface ICreateTemplate {
-  (template: string): ITemplate
+  (template: string): IRender
 }
 
 interface ILoadTemplates {
@@ -20,6 +26,23 @@ interface ITemplatesPlugined extends Object {
   processTemplate?: IProcessTemplate
 }
 
+interface ITemplateOptions {
+  _with?: boolean
+  cache?: boolean
+  client?: boolean
+  compileDebug?: boolean
+  context?: any
+  debug?: boolean
+  delimiter?: string
+  escape?: boolean | (template: string): string
+  filename?: string
+  localsName?: string
+  rmWhitespace?: boolean
+  root?: string
+  strict?: boolean
+  views?: string[]
+}
+
 export default ITemplatesPlugined
 
 export {
@@ -27,5 +50,5 @@ export {
   ICreateTemplate,
   ILoadTemplates,
   IProcessTemplate,
-  ITemplate
+  IRender
 }
