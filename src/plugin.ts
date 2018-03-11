@@ -15,3 +15,4 @@ const TemplatesPlugin = (proto: ITemplatesPlugined): void => {
 
 const install = TemplatesPlugin
 export { install, TemplatesPlugin }
+export default TemplatesPlugin

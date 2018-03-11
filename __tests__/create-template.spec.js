@@ -1,11 +1,20 @@
 const { createTemplate } = require('../src/create-template')
-const fs = require('fs')
+const fs = require('fs-extra')
 
-const tempDir = `${__dirname}/temp-createTemplate-files`
+const tempDir = 'temp-createTemplate-files'
 
 describe('Create Template', () => {
+  let cwd
+
+  beforeAll(() => {
+    cwd = process.cwd()
+    fs.ensureDirSync(`${__dirname}/${tempDir}`)
+    process.chdir(`${__dirname}/${tempDir}`)
+  })
+
   afterAll(() => {
-    fs.removeSync(tempDir)
+    process.chdir(cwd)
+    fs.removeSync(`${__dirname}/${tempDir}`)
   })
 
   it('generates object with specific API', () => {

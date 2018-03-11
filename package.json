@@ -56,7 +56,6 @@
     "webpack-cli": "^2.0.9"
   },
   "dependencies": {
-    "callsite": "^1.0.0",
     "ejs": "^2.5.7",
     "fs-extra": "^5.0.0"
   }
