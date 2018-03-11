@@ -39,7 +39,9 @@ const normalizeSearch = (search?: string | string[] | ISearchOptions) => {
   if (isDefined(search.dot)) { opts.dot = search.dot }
   if (isDefined(search.expandDirectories)) { opts.expandDirectories = search.expandDirectories }
   if (isDefined(search.extension)) { opts.extension = search.extension }
-  if (isDefined(search.followSymlinkedDirectories)) { opts.followSymlinkedDirectories = search.followSymlinkedDirectories }
+  if (isDefined(search.followSymlinkedDirectories)) {
+    opts.followSymlinkedDirectories = search.followSymlinkedDirectories
+  }
   if (isDefined(search.globstar)) { opts.globstar = search.globstar }
   if (isDefined(search.matchBase)) { opts.matchBase = search.matchBase }
   if (isDefined(search.nobrace)) { opts.nobrace = search.nobrace }

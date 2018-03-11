@@ -1,44 +1,54 @@
-import ejs from 'ejs'
+import ejs, { Options as EjsOptions } from 'ejs'
 import fs from 'fs-extra'
-import { ICreateTemplate, IRender, ITemplateOptions } from '../interface'
+import {
+  ICreateTemplate,
+  IEscape,
+  ITemplate,
+  ITemplateOptions,
+  ITemplateRender,
+  ITemplateWrite
+} from '../interface'
 
 const normalizeOptions = (options: ITemplateOptions = {}) => ({
   ...options,
   escape: typeof options.escape === 'function'
-    ? options.escape : options.escape ? undefined : (str: string) => str
+    ? options.escape as IEscape : options.escape ? undefined : (str: string) => str
 })
 
-const createTemplate: ICreateTemplate = (template: string, options: ITemplateOptions): IRender => {
+const createTemplate: ICreateTemplate = (template: string, options: ITemplateOptions): ITemplate => {
   if (typeof template !== 'string') {
     throw new Error('template is required and it should be a string')
   }
 
-  const ejsTemplate = ejs.compile(template, normalizeOptions(options))
+  options = normalizeOptions(options)
 
-  const renderer = (context = {}, path?: string, sync?: boolean) => {
-    if (path && typeof path !== 'string') {
-      throw new Error('path should be a string')
-    }
+  // TODO: catch error and show it above the method
+  const ejsTemplate = ejs.compile(template, options as EjsOptions)
 
-    const content = ejsTemplate(context)
+  const getSource = () => options.filename
 
+  const render: ITemplateRender = (context = {}) => ejsTemplate(context)
+
+  const write: ITemplateWrite = (context: any, path?: string): Promise<void> => {
+    path = path || getSource()
     if (!path) {
-      return content
+      throw new Error('path is not specified')
     }
 
-    if (!sync) {
-      return fs.outputFile(path, content)
-        .then(() => content)
-    } else {
-      fs.outputFileSync(path, content)
-      return content
-    }
+    return fs.outputFile(path, render(context))
+      .then(() => Promise.resolve())
   }
 
-  const render: IRender = (context: any, path?: string): string | Promise<string> => renderer(context, path, false)
-  render.sync = (context: any, path: string): string => renderer(context, path, true)
+  write.sync = (context: any, path?: string): void => {
+    path = path || getSource()
+    if (!path) {
+      throw new Error('path is not specified')
+    }
 
-  return render
+    fs.outputFileSync(path, render(context))
+  }
+
+  return { getSource, render, write }
 }
 
 export default createTemplate

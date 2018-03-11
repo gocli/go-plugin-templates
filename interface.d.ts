@@ -1,36 +1,19 @@
+import { Options as EjsOptions } from 'ejs'
+
 interface IEscape {
   (template: string): string
 }
 
-interface ITemplateOptions {
-  _with?: boolean
-  cache?: boolean
-  client?: boolean
-  compileDebug?: boolean
-  context?: any
-  debug?: boolean
-  delimiter?: string
+interface ITemplateOptions extends EjsOptions {
   escape?: boolean | IEscape
-  filename?: string
-  localsName?: string
-  rmWhitespace?: boolean
-  root?: string
-  strict?: boolean
-  views?: string[]
 }
 
-interface IRenderSync {
-  (context: any, destination: string): void
-}
-
-interface IRender {
+interface ITemplateRender {
   (context: any): string
-  (context: any, destination: string): Promise<string>
-  sync?: IRenderSync
 }
 
 interface ICreateTemplate {
-  (template: string, options: ITemplateOptions): IRender
+  (template: string, options: ITemplateOptions): ITemplate
 }
 
 interface IFileMeta extends Object {
@@ -63,25 +46,33 @@ interface IGlobbyOptions {
 }
 
 interface ISearchOptions extends IGlobbyOptions {
-  pattern?: string // TODO: default = '**'
+  pattern?: string
   patterns?: string[]
   resolve?: string | IResolver
 }
 
-interface ITemplatesList {
-  [index: number]: {
-    template: string
-    source: string
-  }
+interface ITemplateWriteSync {
+  (context: any, path?: string): void
+}
+
+interface ITemplateWrite {
+  (context: any, path?: string): Promise
+  sync?: ITemplateWriteSync // TODO: shouldn't be optional
+}
+
+interface ITemplate {
+  getSource (): string | undefined
+  render (context: any): string
+  write: ITemplateWrite
 }
 
 interface ILoadTemplatesSync {
-  (search?: string | IGlobbyOptions, options?: ITemplateOptions): ITemplatesList
+  (search?: string | IGlobbyOptions, options?: ITemplateOptions): ITemplate[]
 }
 
 interface ILoadTemplates {
-  (search?: string | IGlobbyOptions, options?: ITemplateOptions): Promise<ITemplatesList>
-  sync: ILoadTemplatesSync
+  (search?: string | IGlobbyOptions, options?: ITemplateOptions): Promise<ITemplate[]>
+  sync?: ILoadTemplatesSync // TODO: shouldn't be optional
 }
 
 interface IProcessTemplateSync {
@@ -101,15 +92,17 @@ interface ITemplatesPlugined extends Object {
 export default ITemplatesPlugined
 
 export {
+  IEscape,
   ITemplateOptions,
-  IRenderSync,
-  IRender,
+  ITemplateRender,
   ICreateTemplate,
   IFileMeta,
   IResolver,
   IGlobbyOptions,
   ISearchOptions,
-  ITemplatesList,
+  ITemplateWriteSync,
+  ITemplateWrite,
+  ITemplate,
   ILoadTemplatesSync,
   ILoadTemplates,
   IProcessTemplateSync,

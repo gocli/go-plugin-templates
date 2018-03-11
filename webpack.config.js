@@ -21,6 +21,7 @@ module.exports = {
   resolve: {
     extensions: [ '.ts', '.js' ]
   },
+  target: 'node',
   output: {
     libraryTarget: 'commonjs',
     filename: 'plugin.js',
