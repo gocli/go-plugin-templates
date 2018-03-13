@@ -1,7 +1,7 @@
 const fs = require('fs-extra')
 const { loadTemplates } = require('../src/load-templates')
 
-const tempDir = `temp-loadTemplates-files`
+const tempDir = 'temp-loadTemplates-files'
 
 describe('Load Templates', () => {
   let cwd
@@ -24,13 +24,26 @@ describe('Load Templates', () => {
     expect(typeof loadTemplates.sync).toBe('function')
   })
 
-  it('loads a list of files using glob patterns', async () => {
+  it('loads a list of files using glob patterns and convert them into templates', async () => {
     const templates = (await loadTemplates('**'))
-      .map((template) => template.getSource())
-      .sort()
-    expect(templates).toEqual([
-      'd1/template-1',
-      'd1/template-2'
-    ])
+      .sort((t1, t2) => t1.getSource() > t2.getSource() ? 1 : -1)
+
+    expect(templates.map(t => t.getSource())).toEqual(['d1/template-1', 'd1/template-2'])
+    expect(templates.map(t => t.render())).toEqual(['hello', 'hi'])
+  })
+
+  it('can write a bunch of loaded templates', async () => {
+    const distDir = `${__dirname}/${tempDir}`
+    const templates = (await loadTemplates({ pattern: '**', cwd: distDir }))
+
+    const load = async (file) => (await fs.readFile(`${distDir}/${file}`)).toString()
+
+    await templates.write({}, `${distDir}/async/`)
+    expect(await load('async/d1/template-1')).toBe('hello')
+    expect(await load('async/d1/template-2')).toBe('hi')
+
+    templates.write.sync({}, `${distDir}/sync/`)
+    expect(await load('sync/d1/template-1')).toBe('hello')
+    expect(await load('sync/d1/template-2')).toBe('hi')
   })
 })

@@ -66,6 +66,11 @@ interface ITemplate {
   write: ITemplateWrite
 }
 
+interface ITemplates {
+  [index: number]: ITemplate
+  write: ITemplateWrite
+}
+
 interface ILoadTemplatesSync {
   (search?: string | IGlobbyOptions, options?: ITemplateOptions): ITemplate[]
 }
