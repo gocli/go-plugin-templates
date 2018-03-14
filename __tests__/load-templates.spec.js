@@ -1,21 +1,41 @@
-const fs = require('fs-extra')
+const mockFs = (() => {
+  const fs = {
+    readFile: jest.fn(),
+    readFileSync: jest.fn(),
+    outputFile: jest.fn(),
+    outputFileSync: jest.fn()
+  }
+  return fs
+})()
+jest.mock('fs-extra', () => mockFs)
+
+const mockMatchFiles = (() => {
+  const matchFiles = jest.fn()
+  matchFiles.sync = jest.fn()
+  matchFiles.matchFiles = matchFiles
+  return matchFiles
+})()
+jest.mock('../src/match-files', () => mockMatchFiles)
+
 const { loadTemplates } = require('../src/load-templates')
 
-const tempDir = 'temp-loadTemplates-files'
+beforeEach(() => {
+  mockMatchFiles.mockResolvedValue(['dir/file-0', 'dir/file-1'])
+  mockMatchFiles.sync.mockReturnValue(['dir/file-0', 'dir/file-1'])
 
-let cwd
-
-beforeAll(() => {
-  fs.outputFileSync(`${__dirname}/${tempDir}/d1/template-1`, 'hello')
-  fs.outputFileSync(`${__dirname}/${tempDir}/d1/template-2`, 'hi')
-
-  cwd = process.cwd()
-  process.chdir(`${__dirname}/${tempDir}`)
+  let asyncCounter = 0
+  let syncCounter = 0
+  mockFs.readFile.mockImplementation(() => Buffer.from(`content-${asyncCounter++}`))
+  mockFs.readFileSync.mockImplementation(() => Buffer.from(`content-${syncCounter++}`))
 })
 
-afterAll(() => {
-  process.chdir(cwd)
-  fs.removeSync(`${__dirname}/${tempDir}`)
+afterEach(() => {
+  mockMatchFiles.mockReset()
+  mockMatchFiles.sync.mockReset()
+  mockFs.readFile.mockReset()
+  mockFs.readFileSync.mockReset()
+  mockFs.outputFile.mockReset()
+  mockFs.outputFileSync.mockReset()
 })
 
 describe('Load Templates', () => {
@@ -29,31 +49,30 @@ describe('Load Templates', () => {
       .sort((t1, t2) => t1.getSource() > t2.getSource() ? 1 : -1)
 
     expect(Array.from(templates.map(t => t.getSource())))
-      .toEqual(['d1/template-1', 'd1/template-2'])
+      .toEqual(['dir/file-0', 'dir/file-1'])
     expect(Array.from(templates.map(t => t.render())))
-      .toEqual(['hello', 'hi'])
+      .toEqual(['content-0', 'content-1'])
 
     const templatesSync = (await loadTemplates.sync('**'))
       .sort((t1, t2) => t1.getSource() > t2.getSource() ? 1 : -1)
 
     expect(Array.from(templatesSync.map(t => t.getSource())))
-      .toEqual(['d1/template-1', 'd1/template-2'])
+      .toEqual(['dir/file-0', 'dir/file-1'])
     expect(Array.from(templatesSync.map(t => t.render())))
-      .toEqual(['hello', 'hi'])
+      .toEqual(['content-0', 'content-1'])
   })
 
   it('can write a bunch of loaded templates', async () => {
-    const distDir = `${__dirname}/${tempDir}`
+    const distDir = `/destination-dir`
     const templates = (await loadTemplates({ pattern: '**', cwd: distDir }))
 
-    const load = async (file) => (await fs.readFile(`${distDir}/${file}`)).toString()
+    mockFs.outputFile.mockResolvedValue()
+    await templates.write({}, `${distDir}/`)
+    expect(mockFs.outputFile.mock.calls[0]).toEqual([`${distDir}/dir/file-0`, 'content-0'])
+    expect(mockFs.outputFile.mock.calls[1]).toEqual([`${distDir}/dir/file-1`, 'content-1'])
 
-    await templates.write({}, `${distDir}/async/`)
-    expect(await load('async/d1/template-1')).toBe('hello')
-    expect(await load('async/d1/template-2')).toBe('hi')
-
-    templates.write.sync({}, `${distDir}/sync/`)
-    expect(await load('sync/d1/template-1')).toBe('hello')
-    expect(await load('sync/d1/template-2')).toBe('hi')
+    templates.write.sync({}, `${distDir}/`)
+    expect(mockFs.outputFileSync.mock.calls[0]).toEqual([`${distDir}/dir/file-0`, 'content-0'])
+    expect(mockFs.outputFileSync.mock.calls[1]).toEqual([`${distDir}/dir/file-1`, 'content-1'])
   })
 })
