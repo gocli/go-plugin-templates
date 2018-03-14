@@ -108,9 +108,14 @@ interface IMatchFilesSync {
   (search?: string | string[] | ISearchOptions): string[]
 }
 
+interface IMatchFilesIntermediate {
+  (search?: string | string[] | ISearchOptions): Promise<string[]>
+  sync?: IMatchFilesSync
+}
+
 interface IMatchFiles {
   (search?: string | string[] | ISearchOptions): Promise<string[]>
-    sync?: IMatchFilesSync // TODO: shouldn't be optional
+  sync: IMatchFilesSync
 }
 
 export default ITemplatesPlugined
@@ -135,5 +140,6 @@ export {
   IProcessTemplate,
   ITemplatesPlugined,
   IMatchFilesSync,
+  IMatchFilesIntermediate,
   IMatchFiles
 }
