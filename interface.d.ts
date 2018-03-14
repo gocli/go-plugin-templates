@@ -17,7 +17,12 @@ interface ICreateTemplate {
 }
 
 interface IFileMeta extends Object {
-  name: string
+  root?: string
+  dir?: string
+  base?: string
+  ext?: string
+  name?: string
+  filename?: string
 }
 
 interface IResolver {
@@ -52,11 +57,11 @@ interface ISearchOptions extends IGlobbyOptions {
 }
 
 interface ITemplateWriteSync {
-  (context: any, path?: string): void
+  (context: any, resolvePath?: string | IResolver): void
 }
 
 interface ITemplateWrite {
-  (context: any, path?: string): Promise
+  (context: any, resolvePath?: string | IResolver): Promise
   sync?: ITemplateWriteSync // TODO: shouldn't be optional
 }
 
@@ -66,17 +71,17 @@ interface ITemplate {
   write: ITemplateWrite
 }
 
-interface ITemplates {
+interface ITemplates extends Array {
   [index: number]: ITemplate
-  write: ITemplateWrite
+  write?: ITemplateWrite
 }
 
 interface ILoadTemplatesSync {
-  (search?: string | IGlobbyOptions, options?: ITemplateOptions): ITemplate[]
+  (search?: string | IGlobbyOptions, options?: ITemplateOptions): ITemplates
 }
 
 interface ILoadTemplates {
-  (search?: string | IGlobbyOptions, options?: ITemplateOptions): Promise<ITemplate[]>
+  (search?: string | IGlobbyOptions, options?: ITemplateOptions): Promise<ITemplates>
   sync?: ILoadTemplatesSync // TODO: shouldn't be optional
 }
 
@@ -94,6 +99,15 @@ interface ITemplatesPlugined extends Object {
   processTemplate?: IProcessTemplate
 }
 
+interface IMatchFilesSync {
+  (search?: string | string[] | ISearchOptions): string[]
+}
+
+interface IMatchFiles {
+  (search?: string | string[] | ISearchOptions): Promise<string[]>
+    sync?: IMatchFilesSync // TODO: shouldn't be optional
+}
+
 export default ITemplatesPlugined
 
 export {
@@ -108,9 +122,12 @@ export {
   ITemplateWriteSync,
   ITemplateWrite,
   ITemplate,
+  ITemplates,
   ILoadTemplatesSync,
   ILoadTemplates,
   IProcessTemplateSync,
   IProcessTemplate,
-  ITemplatesPlugined
+  ITemplatesPlugined,
+  IMatchFilesSync,
+  IMatchFiles
 }

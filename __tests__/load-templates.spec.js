@@ -3,22 +3,22 @@ const { loadTemplates } = require('../src/load-templates')
 
 const tempDir = 'temp-loadTemplates-files'
 
+let cwd
+
+beforeAll(() => {
+  fs.outputFileSync(`${__dirname}/${tempDir}/d1/template-1`, 'hello')
+  fs.outputFileSync(`${__dirname}/${tempDir}/d1/template-2`, 'hi')
+
+  cwd = process.cwd()
+  process.chdir(`${__dirname}/${tempDir}`)
+})
+
+afterAll(() => {
+  process.chdir(cwd)
+  fs.removeSync(`${__dirname}/${tempDir}`)
+})
+
 describe('Load Templates', () => {
-  let cwd
-
-  beforeAll(() => {
-    fs.outputFileSync(`${__dirname}/${tempDir}/d1/template-1`, 'hello')
-    fs.outputFileSync(`${__dirname}/${tempDir}/d1/template-2`, 'hi')
-
-    cwd = process.cwd()
-    process.chdir(`${__dirname}/${tempDir}`)
-  })
-
-  afterAll(() => {
-    process.chdir(cwd)
-    fs.removeSync(`${__dirname}/${tempDir}`)
-  })
-
   it('is a function that has synchronous version', () => {
     expect(typeof loadTemplates).toBe('function')
     expect(typeof loadTemplates.sync).toBe('function')
@@ -28,8 +28,10 @@ describe('Load Templates', () => {
     const templates = (await loadTemplates('**'))
       .sort((t1, t2) => t1.getSource() > t2.getSource() ? 1 : -1)
 
-    expect(templates.map(t => t.getSource())).toEqual(['d1/template-1', 'd1/template-2'])
-    expect(templates.map(t => t.render())).toEqual(['hello', 'hi'])
+    expect(Array.from(templates.map(t => t.getSource())))
+      .toEqual(['d1/template-1', 'd1/template-2'])
+    expect(Array.from(templates.map(t => t.render())))
+      .toEqual(['hello', 'hi'])
   })
 
   it('can write a bunch of loaded templates', async () => {

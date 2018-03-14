@@ -48,6 +48,7 @@ describe('Normalize Search', () => {
     expect(normalizeSearch({})).toEqual({ ...defaultSearch })
     expect(normalizeSearch({ pattern: 'hello' })).toEqual({ ...defaultSearch, patterns: ['hello'] })
     expect(normalizeSearch({ patterns: ['hello', 'hi'] })).toEqual({ ...defaultSearch, patterns: ['hello', 'hi'] })
+    expect(() => normalizeSearch(42)).toThrow()
   })
 
   it('can completly replace default ignore', () => {

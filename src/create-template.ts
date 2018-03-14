@@ -1,13 +1,16 @@
 import ejs, { Options as EjsOptions } from 'ejs'
 import fs from 'fs-extra'
+import { sep } from 'path'
 import {
   ICreateTemplate,
   IEscape,
+  IResolver,
   ITemplate,
   ITemplateOptions,
   ITemplateRender,
   ITemplateWrite
 } from '../interface'
+import { resolveDestination } from './resolve-destination'
 
 const normalizeOptions = (options: ITemplateOptions = {}) => ({
   ...options,
@@ -29,23 +32,46 @@ const createTemplate: ICreateTemplate = (template: string, options: ITemplateOpt
 
   const render: ITemplateRender = (context = {}) => ejsTemplate(context)
 
-  const write: ITemplateWrite = (context: any, path?: string): Promise<void> => {
-    path = path || getSource()
-    if (!path) {
-      throw new Error('path is not specified')
+  const write: ITemplateWrite = (context: any, resolvePath?: string | IResolver): Promise<void> => {
+    const dest = resolveDestination(resolvePath, getSource())
+
+    if (!dest) {
+      throw new Error('resolvePath and/or filename should be specified')
     }
 
-    return fs.outputFile(path, render(context))
+    return fs.outputFile(dest, render(context))
       .then(() => Promise.resolve())
+      .catch((error) => {
+        if (/EISDIR/.test(error)) {
+          throw new Error(
+            `'${dest}' is a folder and it can not be rewritten\n` +
+            `Tip: if you mean to write template into this directory add ${sep} at the end of the destination path`
+          )
+        } else {
+          throw error
+        }
+      })
   }
 
-  write.sync = (context: any, path?: string): void => {
-    path = path || getSource()
-    if (!path) {
-      throw new Error('path is not specified')
+  write.sync = (context: any, resolvePath?: string | IResolver): void => {
+    const dest = resolveDestination(resolvePath, getSource())
+
+    if (!dest) {
+      throw new Error('resolvePath and/or filename should be specified')
     }
 
-    fs.outputFileSync(path, render(context))
+    try {
+      fs.outputFileSync(dest, render(context))
+    } catch (error) {
+      if (/EISDIR/.test(error)) {
+        throw new Error(
+          `'${dest}' is a folder and it can not be rewritten\n` +
+          `Tip: if you mean to write template into this directory add ${sep} at the end of the destination path`
+        )
+      } else {
+        throw error
+      }
+    }
   }
 
   return { getSource, render, write }

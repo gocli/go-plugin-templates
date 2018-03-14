@@ -3,20 +3,20 @@ const fs = require('fs-extra')
 
 const tempDir = 'temp-createTemplate-files'
 
+let cwd
+
+beforeAll(() => {
+  fs.ensureDirSync(`${__dirname}/${tempDir}`)
+  cwd = process.cwd()
+  process.chdir(`${__dirname}/${tempDir}`)
+})
+
+afterAll(() => {
+  process.chdir(cwd)
+  fs.removeSync(`${__dirname}/${tempDir}`)
+})
+
 describe('Create Template', () => {
-  let cwd
-
-  beforeAll(() => {
-    cwd = process.cwd()
-    fs.ensureDirSync(`${__dirname}/${tempDir}`)
-    process.chdir(`${__dirname}/${tempDir}`)
-  })
-
-  afterAll(() => {
-    process.chdir(cwd)
-    fs.removeSync(`${__dirname}/${tempDir}`)
-  })
-
   it('generates object with specific API', () => {
     expect(() => createTemplate()).toThrowError(/required/i, 'should contain "required"')
     expect(() => createTemplate(1)).toThrowError(/string/i, 'should contain "string"')
@@ -56,30 +56,56 @@ describe('Create Template', () => {
   })
 
   it('can write rendered templates', async () => {
-    expect(() => createTemplate('').write()).toThrowError(/path/)
+    expect(() => createTemplate('').write()).toThrowError(/path/i)
+    expect(() => createTemplate('').write.sync()).toThrowError(/path/i)
 
-    const filename = `${tempDir}/async-tempalte-rendering`
+    const filename = `${tempDir}/tempalte-rendering`
     const customFilename = `${filename}-custom`
     const template = createTemplate('hello', { filename })
 
     await template.write({})
     expect(fs.readFileSync(filename).toString()).toBe('hello')
 
+    template.write.sync({})
+    expect(fs.readFileSync(filename).toString()).toBe('hello')
+
     await template.write({}, customFilename)
+    expect(fs.readFileSync(customFilename).toString()).toBe('hello')
+
+    template.write.sync({}, customFilename)
     expect(fs.readFileSync(customFilename).toString()).toBe('hello')
   })
 
-  it('write file synchonously', () => {
-    expect(() => createTemplate('').write.sync()).toThrowError(/path/)
+  it('write file with a given name', async () => {
+    await createTemplate('halo', { filename: 'given-name-test-1' }).write({})
+    expect(fs.readFileSync('given-name-test-1').toString()).toBe('halo')
 
-    const filename = `${tempDir}/sync-template-rendering`
-    const customFilename = `${filename}-custom`
-    const template = createTemplate('halo', { filename })
+    createTemplate('halo', { filename: 'given-name-test-2' }).write.sync({})
+    expect(fs.readFileSync('given-name-test-2').toString()).toBe('halo')
 
-    template.write.sync({})
-    expect(fs.readFileSync(filename).toString()).toBe('halo')
+    await createTemplate('halo', { filename: 'd/given-name-test-3' }).write({}, 'given-name-custom-dir/')
+    expect(fs.readFileSync('given-name-custom-dir/d/given-name-test-3').toString()).toBe('halo')
 
-    template.write.sync({}, customFilename)
-    expect(fs.readFileSync(customFilename).toString()).toBe('halo')
+    createTemplate('halo', { filename: 'd/given-name-test-4' }).write.sync({}, 'given-name-custom-dir/')
+    expect(fs.readFileSync('given-name-custom-dir/d/given-name-test-4').toString()).toBe('halo')
+  })
+
+  it('fails if destination is a folder', async () => {
+    fs.ensureDirSync('predefined-folder')
+
+    await expect(
+      createTemplate('halo', { filename: 'd/given-name-test-3' }).write({}, 'predefined-folder')
+    ).rejects.toThrowError(/folder/i)
+
+    expect(
+      () => createTemplate('halo', { filename: 'd/given-name-test-4' }).write.sync({}, 'predefined-folder')
+    ).toThrowError(/folder/i)
+  })
+
+  it('fails if destination can not be computed', () => {
+    expect(() => createTemplate('').write({}, '<%=')).toThrow()
+    expect(() => createTemplate('').write.sync({}, '<%=')).toThrow()
+    expect(() => createTemplate('', { filename: '' }).write()).toThrow()
+    expect(() => createTemplate('', { filename: '' }).write.sync()).toThrow()
   })
 })
