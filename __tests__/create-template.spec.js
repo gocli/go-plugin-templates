@@ -1,19 +1,21 @@
+const mockFs = (() => {
+  const fs = {
+    outputFile: jest.fn(),
+    outputFileSync: jest.fn()
+  }
+  return fs
+})()
+jest.mock('fs-extra', () => mockFs)
+
 const { createTemplate } = require('../src/create-template')
-const fs = require('fs-extra')
 
-const tempDir = 'temp-createTemplate-files'
-
-let cwd
-
-beforeAll(() => {
-  fs.ensureDirSync(`${__dirname}/${tempDir}`)
-  cwd = process.cwd()
-  process.chdir(`${__dirname}/${tempDir}`)
+beforeEach(() => {
+  mockFs.outputFile.mockResolvedValue()
 })
 
-afterAll(() => {
-  process.chdir(cwd)
-  fs.removeSync(`${__dirname}/${tempDir}`)
+afterEach(() => {
+  mockFs.outputFile.mockReset()
+  mockFs.outputFileSync.mockReset()
 })
 
 describe('Create Template', () => {
@@ -59,47 +61,28 @@ describe('Create Template', () => {
     expect(() => createTemplate('').write()).toThrowError(/path/i)
     expect(() => createTemplate('').write.sync()).toThrowError(/path/i)
 
-    const filename = `${tempDir}/tempalte-rendering`
+    const filename = 'dir/file'
     const customFilename = `${filename}-custom`
-    const template = createTemplate('hello', { filename })
+    const content = 'hello'
+    const template = createTemplate(content, { filename })
 
     await template.write({})
-    expect(fs.readFileSync(filename).toString()).toBe('hello')
+    expect(mockFs.outputFile).toHaveBeenLastCalledWith(filename, content)
 
     template.write.sync({})
-    expect(fs.readFileSync(filename).toString()).toBe('hello')
+    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith(filename, content)
 
     await template.write({}, customFilename)
-    expect(fs.readFileSync(customFilename).toString()).toBe('hello')
+    expect(mockFs.outputFile).toHaveBeenLastCalledWith(customFilename, content)
 
     template.write.sync({}, customFilename)
-    expect(fs.readFileSync(customFilename).toString()).toBe('hello')
-  })
+    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith(customFilename, content)
 
-  it('write file with a given name', async () => {
-    await createTemplate('halo', { filename: 'given-name-test-1' }).write({})
-    expect(fs.readFileSync('given-name-test-1').toString()).toBe('halo')
+    await createTemplate(content).write({}, customFilename)
+    expect(mockFs.outputFile).toHaveBeenLastCalledWith(customFilename, content)
 
-    createTemplate('halo', { filename: 'given-name-test-2' }).write.sync({})
-    expect(fs.readFileSync('given-name-test-2').toString()).toBe('halo')
-
-    await createTemplate('halo', { filename: 'd/given-name-test-3' }).write({}, 'given-name-custom-dir/')
-    expect(fs.readFileSync('given-name-custom-dir/d/given-name-test-3').toString()).toBe('halo')
-
-    createTemplate('halo', { filename: 'd/given-name-test-4' }).write.sync({}, 'given-name-custom-dir/')
-    expect(fs.readFileSync('given-name-custom-dir/d/given-name-test-4').toString()).toBe('halo')
-  })
-
-  it('fails if destination is a folder', async () => {
-    fs.ensureDirSync('predefined-folder')
-
-    await expect(
-      createTemplate('halo', { filename: 'd/given-name-test-3' }).write({}, 'predefined-folder')
-    ).rejects.toThrowError(/folder/i)
-
-    expect(
-      () => createTemplate('halo', { filename: 'd/given-name-test-4' }).write.sync({}, 'predefined-folder')
-    ).toThrowError(/folder/i)
+    createTemplate(content).write.sync({}, customFilename)
+    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith(customFilename, content)
   })
 
   it('fails if destination can not be computed', () => {
@@ -107,5 +90,33 @@ describe('Create Template', () => {
     expect(() => createTemplate('').write.sync({}, '<%=')).toThrow()
     expect(() => createTemplate('', { filename: '' }).write()).toThrow()
     expect(() => createTemplate('', { filename: '' }).write.sync()).toThrow()
+  })
+
+  it('fails if destination is a folder', async () => {
+    const dirName = 'dir'
+
+    const fsEisdirError = new Error(`EISDIR: illegal operation on a directory, open '${dirName}'`)
+    mockFs.outputFile.mockRejectedValue(fsEisdirError)
+    mockFs.outputFileSync.mockImplementation(() => { throw fsEisdirError })
+
+    await expect(
+      createTemplate('halo', { filename: 'd/given-name-test-3' }).write({}, dirName)
+    ).rejects.toThrowError(/folder/i)
+
+    expect(
+      () => createTemplate('halo', { filename: 'd/given-name-test-4' }).write.sync({}, dirName)
+    ).toThrowError(/folder/i)
+
+    const fsError = new Error('some casual error')
+    mockFs.outputFile.mockRejectedValue(fsError)
+    mockFs.outputFileSync.mockImplementation(() => { throw fsError })
+
+    await expect(
+      createTemplate('halo', { filename: 'd/given-name-test-3' }).write({}, dirName)
+    ).rejects.toThrow()
+
+    expect(
+      () => createTemplate('halo', { filename: 'd/given-name-test-4' }).write.sync({}, dirName)
+    ).toThrow()
   })
 })
