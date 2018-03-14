@@ -5,7 +5,7 @@
   "main": "dist/plugin.js",
   "scripts": {
     "start": "npm run build -- --watch",
-    "lint:js": "standard -v --global describe --global it --global expect --global afterAll --global beforeAll | snazzy",
+    "lint:js": "standard -v --global jest --global describe --global it --global expect --global afterAll --global beforeAll | snazzy",
     "lint:ts": "tslint --project . --format stylish",
     "unit": "jest --coverage",
     "unit:watch": "jest --coverage --watchAll",
