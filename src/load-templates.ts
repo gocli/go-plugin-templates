@@ -3,12 +3,20 @@ import {
   ILoadTemplates,
   IMatchFilesSync,
   ISearchOptions,
+  ITemplate,
   ITemplateOptions,
   ITemplates
 } from '../interface'
 import { createTemplate } from './create-template'
 import { matchFiles } from './match-files'
 import { Templates } from './templates.class'
+
+const wrapTemplates = (source: ITemplate[]): ITemplates => {
+  return source.reduce((templates, template) => {
+    templates.push(template)
+    return templates
+  }, new Templates())
+}
 
 const loadTemplates: ILoadTemplates =
   async (search?: string | string[] | ISearchOptions, options?: ITemplateOptions): Promise<ITemplates> => {
@@ -18,7 +26,7 @@ const loadTemplates: ILoadTemplates =
     const templates = (await Promise.all(loadingTemplates))
       .map(({ template, filename }) => createTemplate(template.toString(), { ...options, filename }))
 
-    return Templates.from(templates)
+    return wrapTemplates(templates)
   }
 
 loadTemplates.sync =
@@ -27,7 +35,7 @@ loadTemplates.sync =
       .map((filename) => ({ filename, template: fs.readFileSync(filename) }))
       .map(({ template, filename }) => createTemplate(template.toString(), { ...options, filename }))
 
-    return Templates.from(templates)
+    return wrapTemplates(templates)
   }
 
 export default loadTemplates

@@ -60,9 +60,14 @@ interface ITemplateWriteSync {
   (context: any, resolvePath?: string | IResolver): void
 }
 
+interface ITemplateWriteIntermediate {
+  (context: any, resolvePath?: string | IResolver): Promise
+  sync?: ITemplateWriteSync
+}
+
 interface ITemplateWrite {
   (context: any, resolvePath?: string | IResolver): Promise
-  sync?: ITemplateWriteSync // TODO: shouldn't be optional
+  sync: ITemplateWriteSync
 }
 
 interface ITemplate {
@@ -73,7 +78,7 @@ interface ITemplate {
 
 interface ITemplates extends Array {
   [index: number]: ITemplate
-  write?: ITemplateWrite
+  write: ITemplateWrite
 }
 
 interface ILoadTemplatesSync {
@@ -120,6 +125,7 @@ export {
   IGlobbyOptions,
   ISearchOptions,
   ITemplateWriteSync,
+  ITemplateWriteIntermediate,
   ITemplateWrite,
   ITemplate,
   ITemplates,

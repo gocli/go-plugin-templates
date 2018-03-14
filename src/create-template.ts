@@ -8,7 +8,8 @@ import {
   ITemplate,
   ITemplateOptions,
   ITemplateRender,
-  ITemplateWrite
+  ITemplateWrite,
+  ITemplateWriteIntermediate
 } from '../interface'
 import { resolveDestination } from './resolve-destination'
 
@@ -32,7 +33,7 @@ const createTemplate: ICreateTemplate = (template: string, options: ITemplateOpt
 
   const render: ITemplateRender = (context = {}) => ejsTemplate(context)
 
-  const write: ITemplateWrite = (context: any, resolvePath?: string | IResolver): Promise<void> => {
+  const write: ITemplateWriteIntermediate = (context: any, resolvePath?: string | IResolver): Promise<void> => {
     const dest = resolveDestination(resolvePath, getSource())
 
     if (!dest) {
@@ -74,7 +75,7 @@ const createTemplate: ICreateTemplate = (template: string, options: ITemplateOpt
     }
   }
 
-  return { getSource, render, write }
+  return { getSource, render, write: write as ITemplateWrite }
 }
 
 export default createTemplate
