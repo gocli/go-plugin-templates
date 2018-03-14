@@ -2,7 +2,7 @@ import globby from 'globby'
 import { IMatchFiles, IMatchFilesIntermediate, ISearchOptions } from '../interface'
 import { normalizeSearch } from './normalize-search'
 
-const matchFiles = ((): IMatchFiles => {
+const matchFiles: IMatchFiles = (() => {
   const match: IMatchFilesIntermediate = (search?: string | string[] | ISearchOptions) => {
     search = normalizeSearch(search)
     return globby(search.patterns as string[], search)

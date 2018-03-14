@@ -1,6 +1,7 @@
 import fs from 'fs-extra'
 import {
   ILoadTemplates,
+  ILoadTemplatesIntermediate,
   IMatchFilesSync,
   ISearchOptions,
   ITemplate,
@@ -18,25 +19,29 @@ const wrapTemplates = (source: ITemplate[]): ITemplates => {
   }, new Templates())
 }
 
-const loadTemplates: ILoadTemplates =
-  async (search?: string | string[] | ISearchOptions, options?: ITemplateOptions): Promise<ITemplates> => {
-    const loadingTemplates = (await matchFiles(search))
-      .map(async (filename: string) => ({ filename, template: await fs.readFile(filename) }))
+const loadTemplates: ILoadTemplates = (() => {
+  const load: ILoadTemplatesIntermediate =
+    async (search?: string | string[] | ISearchOptions, options?: ITemplateOptions): Promise<ITemplates> => {
+      const loadingTemplates = (await matchFiles(search))
+        .map(async (filename: string) => ({ filename, template: await fs.readFile(filename) }))
 
-    const templates = (await Promise.all(loadingTemplates))
-      .map(({ template, filename }) => createTemplate(template.toString(), { ...options, filename }))
+      const templates = (await Promise.all(loadingTemplates))
+        .map(({ template, filename }) => createTemplate(template.toString(), { ...options, filename }))
 
-    return wrapTemplates(templates)
-  }
+      return wrapTemplates(templates)
+    }
 
-loadTemplates.sync =
-  (search?: string | string[] | ISearchOptions, options?: ITemplateOptions): ITemplates => {
-    const templates = (matchFiles.sync as IMatchFilesSync)(search)
-      .map((filename) => ({ filename, template: fs.readFileSync(filename) }))
-      .map(({ template, filename }) => createTemplate(template.toString(), { ...options, filename }))
+  load.sync =
+    (search?: string | string[] | ISearchOptions, options?: ITemplateOptions): ITemplates => {
+      const templates = (matchFiles.sync as IMatchFilesSync)(search)
+        .map((filename) => ({ filename, template: fs.readFileSync(filename) }))
+        .map(({ template, filename }) => createTemplate(template.toString(), { ...options, filename }))
 
-    return wrapTemplates(templates)
-  }
+      return wrapTemplates(templates)
+    }
+
+  return load as ILoadTemplates
+})()
 
 export default loadTemplates
 export { loadTemplates }

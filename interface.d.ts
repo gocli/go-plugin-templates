@@ -85,9 +85,14 @@ interface ILoadTemplatesSync {
   (search?: string | IGlobbyOptions, options?: ITemplateOptions): ITemplates
 }
 
+interface ILoadTemplatesIntermediate {
+  (search?: string | IGlobbyOptions, options?: ITemplateOptions): Promise<ITemplates>
+  sync?: ILoadTemplatesSync
+}
+
 interface ILoadTemplates {
   (search?: string | IGlobbyOptions, options?: ITemplateOptions): Promise<ITemplates>
-  sync?: ILoadTemplatesSync // TODO: shouldn't be optional
+  sync: ILoadTemplatesSync
 }
 
 interface IProcessTemplateSync {
@@ -135,6 +140,7 @@ export {
   ITemplate,
   ITemplates,
   ILoadTemplatesSync,
+  ILoadTemplatesIntermediate,
   ILoadTemplates,
   IProcessTemplateSync,
   IProcessTemplate,
