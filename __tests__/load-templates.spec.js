@@ -32,6 +32,14 @@ describe('Load Templates', () => {
       .toEqual(['d1/template-1', 'd1/template-2'])
     expect(Array.from(templates.map(t => t.render())))
       .toEqual(['hello', 'hi'])
+
+    const templatesSync = (await loadTemplates.sync('**'))
+      .sort((t1, t2) => t1.getSource() > t2.getSource() ? 1 : -1)
+
+    expect(Array.from(templatesSync.map(t => t.getSource())))
+      .toEqual(['d1/template-1', 'd1/template-2'])
+    expect(Array.from(templatesSync.map(t => t.render())))
+      .toEqual(['hello', 'hi'])
   })
 
   it('can write a bunch of loaded templates', async () => {
