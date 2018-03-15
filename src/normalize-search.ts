@@ -48,7 +48,6 @@ const normalizeSearch = (search?: string | string[] | ISearchOptions) => {
   if (isDefined(search.nocase)) { opts.nocase = search.nocase }
   if (isDefined(search.noext)) { opts.noext = search.noext }
   if (isDefined(search.noglobstar)) { opts.noglobstar = search.noglobstar }
-  if (isDefined(search.resolve)) { opts.resolve = search.resolve }
   if (isDefined(search.transform)) { opts.transform = search.transform }
   if (isDefined(search.unique)) { opts.unique = search.unique }
 

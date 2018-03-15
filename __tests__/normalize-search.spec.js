@@ -18,7 +18,6 @@ const allPossibleOptions = [
   'noext',
   'noglobstar',
   'patterns',
-  'resolve',
   'transform',
   'unique'
 ]

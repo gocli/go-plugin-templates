@@ -4,8 +4,13 @@ interface IEscape {
   (template: string): string
 }
 
+interface IResolver {
+  (meta: IFileMeta): string
+}
+
 interface ITemplateOptions extends EjsOptions {
   escape?: boolean | IEscape
+  resolve?: string | IResolver
 }
 
 interface ITemplateRender {
@@ -23,10 +28,6 @@ interface IFileMeta extends Object {
   ext?: string
   name?: string
   filename?: string
-}
-
-interface IResolver {
-  (meta: IFileMeta): string
 }
 
 interface IGlobbyOptions {
@@ -53,7 +54,6 @@ interface IGlobbyOptions {
 interface ISearchOptions extends IGlobbyOptions {
   pattern?: string
   patterns?: string[]
-  resolve?: string | IResolver
 }
 
 interface ITemplateWriteSync {
@@ -61,12 +61,12 @@ interface ITemplateWriteSync {
 }
 
 interface ITemplateWriteIntermediate {
-  (context: any, resolvePath?: string | IResolver): Promise
+  (context: any, resolvePath?: string | IResolver): Promise<void>
   sync?: ITemplateWriteSync
 }
 
 interface ITemplateWrite {
-  (context: any, resolvePath?: string | IResolver): Promise
+  (context: any, resolvePath?: string | IResolver): Promise<void>
   sync: ITemplateWriteSync
 }
 
@@ -82,25 +82,31 @@ interface ITemplates extends Array {
 }
 
 interface ILoadTemplatesSync {
-  (search?: string | IGlobbyOptions, options?: ITemplateOptions): ITemplates
+  (search?: string | ISearchOptions, options?: ITemplateOptions): ITemplates
 }
 
 interface ILoadTemplatesIntermediate {
-  (search?: string | IGlobbyOptions, options?: ITemplateOptions): Promise<ITemplates>
+  (search?: string | ISearchOptions, options?: ITemplateOptions): Promise<ITemplates>
   sync?: ILoadTemplatesSync
 }
 
 interface ILoadTemplates {
-  (search?: string | IGlobbyOptions, options?: ITemplateOptions): Promise<ITemplates>
+  (search?: string | ISearchOptions, options?: ITemplateOptions): Promise<ITemplates>
   sync: ILoadTemplatesSync
 }
 
 interface IProcessTemplateSync {
-  (): void
+  (search: string | ISearchOptions, context: any, options?: ITemplateOptions): void
+}
+
+interface IProcessTemplateIntermediate {
+  (search: string | ISearchOptions, context: any, options?: ITemplateOptions): Promise<void>
+  sync?: IProcessTemplateSync
 }
 
 interface IProcessTemplate {
-  (): void
+  (search: string | ISearchOptions, context: any, options?: ITemplateOptions): Promise<void>
+  sync: IProcessTemplateSync
 }
 
 interface ITemplatesPlugined extends Object {
@@ -143,6 +149,7 @@ export {
   ILoadTemplatesIntermediate,
   ILoadTemplates,
   IProcessTemplateSync,
+  IProcessTemplateIntermediate,
   IProcessTemplate,
   ITemplatesPlugined,
   IMatchFilesSync,
