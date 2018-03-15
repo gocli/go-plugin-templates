@@ -85,6 +85,34 @@ describe('Create Template', () => {
     expect(mockFs.outputFileSync).toHaveBeenLastCalledWith(customFilename, content)
   })
 
+  it('uses predefined resolve option', async () => {
+    const content = 'hello'
+
+    await createTemplate(content, { resolve: 'dir/file' }).write({})
+    expect(mockFs.outputFile).toHaveBeenLastCalledWith('dir/file', content)
+
+    createTemplate(content, { resolve: 'dir/file' }).write.sync({})
+    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith('dir/file', content)
+
+    await createTemplate(content, { resolve: () => 'dir/file' }).write({})
+    expect(mockFs.outputFile).toHaveBeenLastCalledWith('dir/file', content)
+
+    createTemplate(content, { resolve: () => 'dir/file' }).write.sync({})
+    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith('dir/file', content)
+
+    await createTemplate(content, { resolve: 'dir/<%= base %>', filename: 'dir/inner/file' }).write({})
+    expect(mockFs.outputFile).toHaveBeenLastCalledWith('dir/file', content)
+
+    createTemplate(content, { resolve: 'dir/<%= base %>', filename: 'dir/inner/file' }).write.sync({})
+    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith('dir/file', content)
+
+    await createTemplate(content, { resolve: ({ base }) => `dir/${base}`, filename: 'dir/inner/file' }).write({})
+    expect(mockFs.outputFile).toHaveBeenLastCalledWith('dir/file', content)
+
+    createTemplate(content, { resolve: ({ base }) => `dir/${base}`, filename: 'dir/inner/file' }).write.sync({})
+    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith('dir/file', content)
+  })
+
   it('fails if destination can not be computed', () => {
     expect(() => createTemplate('').write({}, '<%=')).toThrow()
     expect(() => createTemplate('').write.sync({}, '<%=')).toThrow()

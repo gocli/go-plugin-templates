@@ -34,7 +34,7 @@ const createTemplate: ICreateTemplate = (template: string, options: ITemplateOpt
   const render: ITemplateRender = (context = {}) => ejsTemplate(context)
 
   const write: ITemplateWriteIntermediate = (context: any, resolvePath?: string | IResolver): Promise<void> => {
-    const dest = resolveDestination(resolvePath, getSource())
+    const dest = resolveDestination(resolvePath || options.resolve, getSource())
 
     if (!dest) {
       throw new Error('resolvePath and/or filename should be specified')
@@ -55,7 +55,7 @@ const createTemplate: ICreateTemplate = (template: string, options: ITemplateOpt
   }
 
   write.sync = (context: any, resolvePath?: string | IResolver): void => {
-    const dest = resolveDestination(resolvePath, getSource())
+    const dest = resolveDestination(resolvePath || options.resolve, getSource())
 
     if (!dest) {
       throw new Error('resolvePath and/or filename should be specified')
