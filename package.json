@@ -10,7 +10,7 @@
     "unit": "jest --coverage",
     "unit:watch": "jest --coverage --watchAll",
     "coverage": "npm run unit; opn coverage/lcov-report/index.html",
-    "test": "npm run lint:js && npm run lint:ts && npm run unit",
+    "test": "npm run lint:js && npm run lint:ts && npm run build && npm run unit",
     "reset": "rimraf dist",
     "build": "npm run reset && webpack",
     "prepublishOnly": "npm run test && npm run build"
