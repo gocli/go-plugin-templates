@@ -36,7 +36,6 @@
   },
   "homepage": "https://github.com/gocli/go-plugin-templates#readme",
   "devDependencies": {
-    "@types/callsite": "^1.0.30",
     "@types/ejs": "^2.5.0",
     "@types/fs-extra": "^5.0.1",
     "@types/globby": "^6.1.0",
