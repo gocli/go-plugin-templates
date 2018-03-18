@@ -26,8 +26,9 @@ const normalizeSearch = (search?: string | string[] | ISearchOptions) => {
     search = { pattern: defaultPattern }
   }
 
+  // tslint:disable-next-line: strict-type-predicates
   if (typeof search !== 'object') {
-    throw new Error('seach should be a string, an array or an object')
+    throw new Error('seach argument should be a string, an array or an object')
   }
 
   const opts: ISearchOptions = {}

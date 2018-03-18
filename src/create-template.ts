@@ -3,7 +3,6 @@ import fs from 'fs-extra'
 import { sep } from 'path'
 import {
   ICreateTemplate,
-  IEscape,
   IResolver,
   ITemplate,
   ITemplateOptions,
@@ -15,13 +14,13 @@ import { resolveDestination } from './resolve-destination'
 
 const normalizeOptions = (options: ITemplateOptions = {}) => ({
   ...options,
-  escape: typeof options.escape === 'function'
-    ? options.escape as IEscape : options.escape ? undefined : (str: string) => str
+  escape: typeof options.escape === 'function' ? options.escape : (str: string) => str
 })
 
 const createTemplate: ICreateTemplate = (template: string, options: ITemplateOptions): ITemplate => {
+  // tslint:disable-next-line: strict-type-predicates
   if (typeof template !== 'string') {
-    throw new Error('template is required and it should be a string')
+    throw new Error('template argument should be a string')
   }
 
   options = normalizeOptions(options)

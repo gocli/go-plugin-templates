@@ -3,14 +3,11 @@ import { createTemplate } from './create-template'
 import { loadTemplates } from './load-templates'
 import { processTemplate } from './process-template'
 
-const TemplatesPlugin = (proto: ITemplatesPlugined): void => {
-  if (typeof proto !== 'object') {
-    throw new Error('prototype is required and it should be an object')
-  }
-
+const TemplatesPlugin = (proto: ITemplatesPlugined = {}): ITemplatesPlugined => {
   proto.createTemplate = createTemplate
   proto.loadTemplates = loadTemplates
   proto.processTemplate = processTemplate
+  return proto
 }
 
 const install = TemplatesPlugin

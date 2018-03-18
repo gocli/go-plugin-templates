@@ -20,7 +20,7 @@ afterEach(() => {
 
 describe('Create Template', () => {
   it('generates object with specific API', () => {
-    expect(() => createTemplate()).toThrowError(/required/i, 'should contain "required"')
+    expect(() => createTemplate()).toThrowError('template argument should be a string')
     expect(() => createTemplate(1)).toThrowError(/string/i, 'should contain "string"')
     const template = createTemplate('')
     expect(typeof template.getSource).toBe('function')
@@ -48,9 +48,6 @@ describe('Create Template', () => {
   it('escapes when needed', () => {
     expect(createTemplate('<%= "<i></i>" %>').render())
       .toBe('<i></i>', 'does not escape by default')
-
-    expect(createTemplate('<%= "<i></i>" %>', { escape: true }).render())
-      .toBe('&lt;i&gt;&lt;/i&gt;', 'escape XML if option is true')
 
     expect(createTemplate('<%= "AC & DC" %>', {
       escape: (str) => str.replace('&', '&amp;')

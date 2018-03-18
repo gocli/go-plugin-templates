@@ -9,7 +9,6 @@ interface IResolver {
 }
 
 interface ITemplateOptions extends EjsOptions {
-  escape?: boolean | IEscape
   resolve?: string | IResolver
 }
 
@@ -76,8 +75,7 @@ interface ITemplate {
   write: ITemplateWrite
 }
 
-interface ITemplates extends Array {
-  [index: number]: ITemplate
+interface ITemplates extends Array<ITemplate> {
   write: ITemplateWrite
 }
 

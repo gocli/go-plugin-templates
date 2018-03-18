@@ -2,7 +2,6 @@ import fs from 'fs-extra'
 import {
   ILoadTemplates,
   ILoadTemplatesIntermediate,
-  IMatchFilesSync,
   ISearchOptions,
   ITemplate,
   ITemplateOptions,
@@ -33,7 +32,7 @@ const loadTemplates: ILoadTemplates = (() => {
 
   load.sync =
     (search?: string | string[] | ISearchOptions, options?: ITemplateOptions): ITemplates => {
-      const templates = (matchFiles.sync as IMatchFilesSync)(search)
+      const templates = matchFiles.sync(search)
         .map((filename) => ({ filename, template: fs.readFileSync(filename) }))
         .map(({ template, filename }) => createTemplate(template.toString(), { ...options, filename }))
 

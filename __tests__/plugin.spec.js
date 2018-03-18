@@ -5,7 +5,9 @@ describe('Plugin', () => {
     expect(typeof plugin.install).toBe('function')
     expect(typeof plugin.TemplatesPlugin).toBe('function')
     expect(plugin.install).toBe(plugin.TemplatesPlugin)
-    expect(() => plugin.install()).toThrowError(/required/i, 'should contain "required"')
+    expect(plugin.install()).toHaveProperty('createTemplate')
+    expect(plugin.install()).toHaveProperty('loadTemplates')
+    expect(plugin.install()).toHaveProperty('processTemplate')
     expect(() => plugin.install({})).not.toThrow()
   })
 

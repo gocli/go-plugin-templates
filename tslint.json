@@ -1,22 +1,10 @@
 {
     "defaultSeverity": "error",
     "extends": [
-        "tslint:recommended"
+      "tslint-config-standard"
     ],
     "linterOptions": {
       "exclude": ["node_modules"]
-    },
-    "jsRules": {
-        "quotemark": [true, "single"],
-        "semicolon": [true, "never"],
-        "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
-        "object-literal-sort-keys": false
-    },
-    "rules": {
-        "quotemark": [true, "single"],
-        "semicolon": [true, "never"],
-        "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
-        "object-literal-sort-keys": false
     },
     "rulesDirectory": []
 }

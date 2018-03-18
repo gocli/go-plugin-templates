@@ -12,7 +12,7 @@
     "coverage": "npm run unit; opn coverage/lcov-report/index.html",
     "test": "npm run lint:js && npm run lint:ts && npm run build && npm run unit",
     "reset": "rimraf dist",
-    "build": "npm run reset && webpack",
+    "build": "npm run reset && tsc",
     "prepublishOnly": "npm run test && npm run build"
   },
   "repository": {
@@ -20,11 +20,11 @@
     "url": "git+https://github.com/gocli/go-plugin-templates.git"
   },
   "keywords": [
-    "template",
-    "templates",
     "boilerplate",
+    "templates",
+    "cli",
     "ejs",
-    "cli"
+    "go"
   ],
   "author": "Stanislav Termosa <termosa.stanislav@gmail.com> (https://github.com/termosa)",
   "license": "MIT",
@@ -47,13 +47,9 @@
     "snazzy": "^7.1.1",
     "standard": "^11.0.0",
     "ts-jest": "^22.4.1",
-    "ts-loader": "^4.0.0",
     "tslint": "^5.9.1",
-    "tslint-loader": "^3.6.0",
-    "typescript": "^2.7.2",
-    "webpack": "^4.0.1",
-    "webpack-cli": "^2.0.9",
-    "webpack-node-externals": "^1.6.0"
+    "tslint-config-standard": "^7.0.0",
+    "typescript": "^2.7.2"
   },
   "dependencies": {
     "ejs": "^2.5.7",
@@ -61,14 +57,14 @@
   },
   "standard": {
     "globals": [
-      "jest",
-      "describe",
-      "it",
-      "expect",
       "afterAll",
+      "afterEach",
       "beforeAll",
       "beforeEach",
-      "afterEach"
+      "describe",
+      "expect",
+      "it",
+      "jest"
     ]
   }
 }

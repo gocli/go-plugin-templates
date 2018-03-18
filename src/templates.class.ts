@@ -7,19 +7,19 @@ import {
 } from '../interface'
 
 const write: ITemplateWriteIntermediate =
-  async function(this: Templates, context: any, resolvePath?: string |  IResolver): Promise<void> {
+  async function (this: Templates, context: any, resolvePath?: string | IResolver): Promise<void> {
     await Promise.all(this.map((t) => t.write(context, resolvePath)))
   }
 
 const writeSync: ITemplateWriteSync =
-  function(this: Templates, context: any, resolvePath?: string | IResolver): void {
+  function (this: Templates, context: any, resolvePath?: string | IResolver): void {
     this.map((t) => t.write.sync(context, resolvePath))
   }
 
 class Templates extends Array implements ITemplates {
   public write: ITemplateWrite
 
-  constructor() {
+  constructor () {
     super()
     const w = write.bind(this)
     w.sync = writeSync.bind(this)

@@ -13,13 +13,14 @@ const resolveDestination = (resolver?: string | IResolver, filename?: string) =>
     return resolver(meta)
   }
 
+  // tslint:disable-next-line: strict-type-predicates
   if (typeof resolver !== 'string') {
-    throw new Error('resolver should be a string or a function')
+    throw new Error('resolver argument should be a string or a function')
   }
 
   if (resolver.endsWith(sep)) {
     if (!filename) {
-      throw new Error('filename should be specified when resolvePath is a folder')
+      throw new Error('filename argument should be specified when resolvePath is a folder')
     }
 
     resolver = ejs.compile(resolver + filename)
