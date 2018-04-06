@@ -15,9 +15,9 @@ const mockMatchFiles = (() => {
   matchFiles.matchFiles = matchFiles
   return matchFiles
 })()
-jest.mock('../src/match-files', () => mockMatchFiles)
+jest.mock('../lib/match-files', () => mockMatchFiles)
 
-const { loadTemplates } = require('../src/load-templates')
+const { loadTemplates } = require('../lib/load-templates')
 
 beforeEach(() => {
   mockMatchFiles.mockResolvedValue(['dir/file-0', 'dir/file-1'])
@@ -25,7 +25,7 @@ beforeEach(() => {
 
   let asyncCounter = 0
   let syncCounter = 0
-  mockFs.readFile.mockImplementation(() => Buffer.from(`content-${asyncCounter++}`))
+  mockFs.readFile.mockImplementation(() => Promise.resolve(Buffer.from(`content-${asyncCounter++}`)))
   mockFs.readFileSync.mockImplementation(() => Buffer.from(`content-${syncCounter++}`))
 })
 

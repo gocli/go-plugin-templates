@@ -2,18 +2,17 @@
   "name": "go-plugin-templates",
   "version": "0.0.0",
   "description": "Go plugin to use templates",
-  "main": "dist/plugin.js",
+  "main": "./lib/plugin.js",
   "scripts": {
-    "start": "npm run build -- --watch",
-    "lint:js": "standard -v | snazzy",
-    "lint:ts": "tslint --project . --format stylish",
+    "lint": "standard -v | snazzy",
     "unit": "jest --coverage",
     "unit:watch": "jest --coverage --watchAll",
     "coverage": "npm run unit; opn coverage/lcov-report/index.html",
-    "test": "npm run lint:js && npm run lint:ts && npm run build && npm run unit",
-    "reset": "rimraf dist",
-    "build": "npm run reset && tsc",
-    "prepublishOnly": "npm run test && npm run build"
+    "test": "npm run lint && npm run unit",
+    "prepublishOnly": "npm run test"
+  },
+  "engines": {
+    "node": ">=6.4.0"
   },
   "repository": {
     "type": "git",
@@ -29,31 +28,22 @@
   "author": "Stanislav Termosa <termosa.stanislav@gmail.com> (https://github.com/termosa)",
   "license": "MIT",
   "files": [
-    "dist"
+    "lib"
   ],
   "bugs": {
     "url": "https://github.com/gocli/go-plugin-templates/issues"
   },
   "homepage": "https://github.com/gocli/go-plugin-templates#readme",
   "devDependencies": {
-    "@types/globby": "^6.1.0",
-    "@types/node": "^9.4.6",
-    "globby": "^8.0.1",
     "jest": "^22.4.2",
     "opn-cli": "^3.1.0",
-    "rimraf": "^2.6.2",
     "snazzy": "^7.1.1",
-    "standard": "^11.0.0",
-    "ts-jest": "^22.4.1",
-    "tslint": "^5.9.1",
-    "tslint-config-standard": "^7.0.0",
-    "typescript": "^2.7.2"
+    "standard": "^11.0.0"
   },
   "dependencies": {
-    "@types/ejs": "^2.5.0",
-    "@types/fs-extra": "^5.0.1",
     "ejs": "^2.5.7",
-    "fs-extra": "^5.0.0"
+    "fs-extra": "^5.0.0",
+    "globby": "^8.0.1"
   },
   "standard": {
     "globals": [

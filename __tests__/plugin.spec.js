@@ -1,4 +1,4 @@
-const plugin = require('../src/plugin')
+const plugin = require('../lib/plugin')
 
 describe('Plugin', () => {
   it('exists', () => {

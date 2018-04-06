@@ -1,4 +1,4 @@
-const { resolveDestination } = require('../src/resolve-destination')
+const { resolveDestination } = require('../lib/resolve-destination')
 
 const filename = '/var/src/file.md'
 const fileMeta = {

@@ -15,9 +15,9 @@ const mockMatchFiles = (() => {
   matchFiles.matchFiles = matchFiles
   return matchFiles
 })()
-jest.mock('../src/match-files', () => mockMatchFiles)
+jest.mock('../lib/match-files', () => mockMatchFiles)
 
-const { processTemplate } = require('../src/process-template')
+const { processTemplate } = require('../lib/process-template')
 
 beforeEach(() => {
   mockMatchFiles.mockResolvedValue(['dir/file-0', 'dir/file-1'])
@@ -25,7 +25,7 @@ beforeEach(() => {
 
   let asyncCounter = 0
   let syncCounter = 0
-  mockFs.readFile.mockImplementation(() => Buffer.from(`content-${asyncCounter++}-<%= flag %>`))
+  mockFs.readFile.mockImplementation(() => Promise.resolve(Buffer.from(`content-${asyncCounter++}-<%= flag %>`)))
   mockFs.readFileSync.mockImplementation(() => Buffer.from(`content-${syncCounter++}-<%= flag %>`))
   mockFs.outputFile.mockResolvedValue()
 })
@@ -45,13 +45,16 @@ describe('Process Template', () => {
     expect(typeof processTemplate.sync).toBe('function')
   })
 
-  it('reads, process, and write files', async () => {
-    await processTemplate('**', { flag: 'FLAG' })
-    expect(mockFs.outputFile).toHaveBeenCalledWith('dir/file-0', 'content-0-FLAG')
-    expect(mockFs.outputFile).toHaveBeenCalledWith('dir/file-1', 'content-1-FLAG')
+  it('reads, process, and write files', () => {
+    return Promise.all([
+      processTemplate('**', { flag: 'FLAG' })
+    ]).then(() => {
+      expect(mockFs.outputFile).toHaveBeenCalledWith('dir/file-0', 'content-0-FLAG')
+      expect(mockFs.outputFile).toHaveBeenCalledWith('dir/file-1', 'content-1-FLAG')
 
-    processTemplate.sync('**', { flag: 'FLAG' })
-    expect(mockFs.outputFileSync).toHaveBeenCalledWith('dir/file-0', 'content-0-FLAG')
-    expect(mockFs.outputFileSync).toHaveBeenCalledWith('dir/file-1', 'content-1-FLAG')
+      processTemplate.sync('**', { flag: 'FLAG' })
+      expect(mockFs.outputFileSync).toHaveBeenCalledWith('dir/file-0', 'content-0-FLAG')
+      expect(mockFs.outputFileSync).toHaveBeenCalledWith('dir/file-1', 'content-1-FLAG')
+    })
   })
 })

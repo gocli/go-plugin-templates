@@ -1,4 +1,4 @@
-const { normalizeSearch } = require('../src/normalize-search')
+const { normalizeSearch } = require('../lib/normalize-search')
 
 const allPossibleOptions = [
   'brace',

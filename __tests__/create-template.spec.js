@@ -7,7 +7,7 @@ const mockFs = (() => {
 })()
 jest.mock('fs-extra', () => mockFs)
 
-const { createTemplate } = require('../src/create-template')
+const { createTemplate } = require('../lib/create-template')
 
 beforeEach(() => {
   mockFs.outputFile.mockResolvedValue()
@@ -54,60 +54,51 @@ describe('Create Template', () => {
     }).render()).toBe('AC &amp; DC', 'uses a function to escape')
   })
 
-  it('can write rendered templates', async () => {
+  it('can write rendered templates', () => {
     expect(() => createTemplate('').write()).toThrowError(/path/i)
     expect(() => createTemplate('').write.sync()).toThrowError(/path/i)
 
-    const filename = 'dir/file'
-    const customFilename = `${filename}-custom`
     const content = 'hello'
-    const template = createTemplate(content, { filename })
 
-    await template.write({})
-    expect(mockFs.outputFile).toHaveBeenLastCalledWith(filename, content)
-
-    template.write.sync({})
-    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith(filename, content)
-
-    await template.write({}, customFilename)
-    expect(mockFs.outputFile).toHaveBeenLastCalledWith(customFilename, content)
-
-    template.write.sync({}, customFilename)
-    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith(customFilename, content)
-
-    await createTemplate(content).write({}, customFilename)
-    expect(mockFs.outputFile).toHaveBeenLastCalledWith(customFilename, content)
-
-    createTemplate(content).write.sync({}, customFilename)
-    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith(customFilename, content)
+    return Promise.all([
+      createTemplate(content, { filename: 'file1' }).write({}),
+      createTemplate(content, { filename: 'file2' }).write.sync({}),
+      createTemplate(content, { filename: 'fileA' }).write({}, 'file3'),
+      createTemplate(content, { filename: 'fileB' }).write.sync({}, 'file4'),
+      createTemplate(content).write({}, 'file5'),
+      createTemplate(content).write.sync({}, 'file6')
+    ]).then(() => {
+      expect(mockFs.outputFile).toHaveBeenCalledWith('file1', content)
+      expect(mockFs.outputFileSync).toHaveBeenCalledWith('file2', content)
+      expect(mockFs.outputFile).toHaveBeenCalledWith('file3', content)
+      expect(mockFs.outputFileSync).toHaveBeenCalledWith('file4', content)
+      expect(mockFs.outputFile).toHaveBeenCalledWith('file5', content)
+      expect(mockFs.outputFileSync).toHaveBeenCalledWith('file6', content)
+    })
   })
 
-  it('uses predefined resolve option', async () => {
+  it('uses predefined resolve option', () => {
     const content = 'hello'
 
-    await createTemplate(content, { resolve: 'dir/file' }).write({})
-    expect(mockFs.outputFile).toHaveBeenLastCalledWith('dir/file', content)
-
-    createTemplate(content, { resolve: 'dir/file' }).write.sync({})
-    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith('dir/file', content)
-
-    await createTemplate(content, { resolve: () => 'dir/file' }).write({})
-    expect(mockFs.outputFile).toHaveBeenLastCalledWith('dir/file', content)
-
-    createTemplate(content, { resolve: () => 'dir/file' }).write.sync({})
-    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith('dir/file', content)
-
-    await createTemplate(content, { resolve: 'dir/<%= base %>', filename: 'dir/inner/file' }).write({})
-    expect(mockFs.outputFile).toHaveBeenLastCalledWith('dir/file', content)
-
-    createTemplate(content, { resolve: 'dir/<%= base %>', filename: 'dir/inner/file' }).write.sync({})
-    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith('dir/file', content)
-
-    await createTemplate(content, { resolve: ({ base }) => `dir/${base}`, filename: 'dir/inner/file' }).write({})
-    expect(mockFs.outputFile).toHaveBeenLastCalledWith('dir/file', content)
-
-    createTemplate(content, { resolve: ({ base }) => `dir/${base}`, filename: 'dir/inner/file' }).write.sync({})
-    expect(mockFs.outputFileSync).toHaveBeenLastCalledWith('dir/file', content)
+    return Promise.all([
+      createTemplate(content, { resolve: 'dir/file1' }).write({}),
+      createTemplate(content, { resolve: 'dir/file2' }).write.sync({}),
+      createTemplate(content, { resolve: () => 'dir/file3' }).write({}),
+      createTemplate(content, { resolve: () => 'dir/file4' }).write.sync({}),
+      createTemplate(content, { resolve: 'dir/<%= base %>', filename: 'dir/inner/file5' }).write({}),
+      createTemplate(content, { resolve: 'dir/<%= base %>', filename: 'dir/inner/file6' }).write.sync({}),
+      createTemplate(content, { resolve: ({ base }) => `dir/${base}`, filename: 'dir/inner/file7' }).write({}),
+      createTemplate(content, { resolve: ({ base }) => `dir/${base}`, filename: 'dir/inner/file8' }).write.sync({})
+    ]).then(() => {
+      expect(mockFs.outputFile).toHaveBeenCalledWith('dir/file1', content)
+      expect(mockFs.outputFileSync).toHaveBeenCalledWith('dir/file2', content)
+      expect(mockFs.outputFile).toHaveBeenCalledWith('dir/file3', content)
+      expect(mockFs.outputFileSync).toHaveBeenCalledWith('dir/file4', content)
+      expect(mockFs.outputFile).toHaveBeenCalledWith('dir/file5', content)
+      expect(mockFs.outputFileSync).toHaveBeenCalledWith('dir/file6', content)
+      expect(mockFs.outputFile).toHaveBeenCalledWith('dir/file7', content)
+      expect(mockFs.outputFileSync).toHaveBeenCalledWith('dir/file8', content)
+    })
   })
 
   it('fails if destination can not be computed', () => {
@@ -117,31 +108,35 @@ describe('Create Template', () => {
     expect(() => createTemplate('', { filename: '' }).write.sync()).toThrow()
   })
 
-  it('fails if destination is a folder', async () => {
-    const dirName = 'dir'
+  it('fails if destination is a folder', () => {
+    const destPath = 'dir'
 
-    const fsEisdirError = new Error(`EISDIR: illegal operation on a directory, open '${dirName}'`)
+    const fsEisdirError = new Error(`EISDIR: illegal operation on a directory, open '${destPath}'`)
     mockFs.outputFile.mockRejectedValue(fsEisdirError)
     mockFs.outputFileSync.mockImplementation(() => { throw fsEisdirError })
 
-    await expect(
-      createTemplate('halo', { filename: 'd/given-name-test-3' }).write({}, dirName)
-    ).rejects.toThrowError(/folder/i)
-
     expect(
-      () => createTemplate('halo', { filename: 'd/given-name-test-4' }).write.sync({}, dirName)
+      () => createTemplate('halo', { filename: 'd/given-name-test-4' }).write.sync({}, destPath)
     ).toThrowError(/folder/i)
+
+    return expect(
+      createTemplate('halo', { filename: 'd/given-name-test-3' }).write({}, destPath)
+    ).rejects.toThrowError(/folder/i)
+  })
+
+  it('fails if error happens during write operation', () => {
+    const destPath = 'dir'
 
     const fsError = new Error('some casual error')
     mockFs.outputFile.mockRejectedValue(fsError)
     mockFs.outputFileSync.mockImplementation(() => { throw fsError })
 
-    await expect(
-      createTemplate('halo', { filename: 'd/given-name-test-3' }).write({}, dirName)
-    ).rejects.toThrow()
-
     expect(
-      () => createTemplate('halo', { filename: 'd/given-name-test-4' }).write.sync({}, dirName)
+      () => createTemplate('halo', { filename: 'd/given-name-test-4' }).write.sync({}, destPath)
     ).toThrow()
+
+    return expect(
+      createTemplate('halo', { filename: 'd/given-name-test-3' }).write({}, destPath)
+    ).rejects.toThrow()
   })
 })

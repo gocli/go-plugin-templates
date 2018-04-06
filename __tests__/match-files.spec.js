@@ -1,5 +1,5 @@
 const fs = require('fs-extra')
-const { matchFiles } = require('../src/match-files')
+const { matchFiles } = require('../lib/match-files')
 
 const tempDir = 'temp-matchFiles-files'
 
