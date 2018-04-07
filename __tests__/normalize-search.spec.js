@@ -36,32 +36,43 @@ describe('Normalize Search', () => {
     ]
   }
 
+  const createExpectedSearch = (search = {}) => Object.assign({}, defaultSearch, search)
+
   it('set default options', () => {
-    expect(normalizeSearch()).toEqual(defaultSearch)
+    expect(normalizeSearch()).toEqual(createExpectedSearch({}))
   })
 
   it('process different forms of search with pattern', () => {
-    expect(normalizeSearch('hello')).toEqual({ ...defaultSearch, patterns: ['hello'] })
-    expect(normalizeSearch(['hello'])).toEqual({ ...defaultSearch, patterns: ['hello'] })
-    expect(normalizeSearch(['hello', 'hi'])).toEqual({ ...defaultSearch, patterns: ['hello', 'hi'] })
-    expect(normalizeSearch({})).toEqual({ ...defaultSearch })
-    expect(normalizeSearch({ pattern: 'hello' })).toEqual({ ...defaultSearch, patterns: ['hello'] })
-    expect(normalizeSearch({ patterns: ['hello', 'hi'] })).toEqual({ ...defaultSearch, patterns: ['hello', 'hi'] })
+    expect(normalizeSearch('hello'))
+      .toEqual(createExpectedSearch({ patterns: ['hello'] }))
+    expect(normalizeSearch(['hello']))
+      .toEqual(createExpectedSearch({ patterns: ['hello'] }))
+    expect(normalizeSearch(['hello', 'hi']))
+      .toEqual(createExpectedSearch({ patterns: ['hello', 'hi'] }))
+    expect(normalizeSearch({}))
+      .toEqual(createExpectedSearch())
+    expect(normalizeSearch({ pattern: 'hello' }))
+      .toEqual(createExpectedSearch({ patterns: ['hello'] }))
+    expect(normalizeSearch({ patterns: ['hello', 'hi'] }))
+      .toEqual(createExpectedSearch({ patterns: ['hello', 'hi'] }))
     expect(() => normalizeSearch(42)).toThrow()
   })
 
   it('can completly replace default ignore', () => {
-    expect(normalizeSearch({ ignore: ['foo'] })).toEqual({ ...defaultSearch, ignore: ['foo'] })
+    expect(normalizeSearch({ ignore: ['foo'] }))
+      .toEqual(createExpectedSearch({ ignore: ['foo'] }))
   })
 
   it('can redefine gitignore option', () => {
-    expect(normalizeSearch({ gitignore: false })).toEqual({ ...defaultSearch, gitignore: false })
+    expect(normalizeSearch({ gitignore: false }))
+      .toEqual(createExpectedSearch({ gitignore: false }))
   })
 
   it('drops unknown properties', () => {
     expect(normalizeSearch({ unknownProperty: true })).not.toHaveProperty('unknownProperty')
 
-    const search = allPossibleOptions.reduce((search, prop) => ({ ...search, [prop]: 'val' }), {})
+    const search = allPossibleOptions
+      .reduce((search, prop) => Object.assign({}, search, { [prop]: 'val' }), {})
     const normalized = normalizeSearch(search)
     allPossibleOptions.forEach(prop => expect(normalized).toHaveProperty(prop))
     expect(Object.keys(search).sort()).toEqual(allPossibleOptions)

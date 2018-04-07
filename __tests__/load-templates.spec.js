@@ -44,35 +44,42 @@ describe('Load Templates', () => {
     expect(typeof loadTemplates.sync).toBe('function')
   })
 
-  it('loads a list of files using glob patterns and convert them into templates', async () => {
-    const templates = (await loadTemplates('**'))
-      .sort((t1, t2) => t1.getSource() > t2.getSource() ? 1 : -1)
-
-    expect(Array.from(templates.map(t => t.getSource())))
-      .toEqual(['dir/file-0', 'dir/file-1'])
-    expect(Array.from(templates.map(t => t.render())))
-      .toEqual(['content-0', 'content-1'])
-
-    const templatesSync = (await loadTemplates.sync('**'))
+  it('loads a list of files using glob patterns and convert them into templates', () => {
+    const templatesSync = loadTemplates.sync('**')
       .sort((t1, t2) => t1.getSource() > t2.getSource() ? 1 : -1)
 
     expect(Array.from(templatesSync.map(t => t.getSource())))
       .toEqual(['dir/file-0', 'dir/file-1'])
     expect(Array.from(templatesSync.map(t => t.render())))
       .toEqual(['content-0', 'content-1'])
+
+    return loadTemplates('**')
+      .then((templates) => templates.sort((t1, t2) => t1.getSource() > t2.getSource() ? 1 : -1))
+      .then((templates) => {
+        expect(Array.from(templates.map(t => t.getSource())))
+          .toEqual(['dir/file-0', 'dir/file-1'])
+        expect(Array.from(templates.map(t => t.render())))
+          .toEqual(['content-0', 'content-1'])
+      })
   })
 
-  it('can write a bunch of loaded templates', async () => {
+  it('can write a bunch of loaded templates', () => {
     const distDir = `/destination-dir`
-    const templates = (await loadTemplates({ pattern: '**', cwd: distDir }))
+    loadTemplates({ pattern: '**', cwd: distDir })
+      .then((templates) => {
+        templates.write.sync({}, `${distDir}/`)
+        expect(mockFs.outputFileSync.mock.calls[0]).toEqual([`${distDir}/dir/file-0`, 'content-0'])
+        expect(mockFs.outputFileSync.mock.calls[1]).toEqual([`${distDir}/dir/file-1`, 'content-1'])
 
-    mockFs.outputFile.mockResolvedValue()
-    await templates.write({}, `${distDir}/`)
-    expect(mockFs.outputFile.mock.calls[0]).toEqual([`${distDir}/dir/file-0`, 'content-0'])
-    expect(mockFs.outputFile.mock.calls[1]).toEqual([`${distDir}/dir/file-1`, 'content-1'])
-
-    templates.write.sync({}, `${distDir}/`)
-    expect(mockFs.outputFileSync.mock.calls[0]).toEqual([`${distDir}/dir/file-0`, 'content-0'])
-    expect(mockFs.outputFileSync.mock.calls[1]).toEqual([`${distDir}/dir/file-1`, 'content-1'])
+        return templates
+      })
+      .then((templates) => {
+        mockFs.outputFile.mockResolvedValue()
+        return templates.write({}, `${distDir}/`)
+          .then(() => {
+            expect(mockFs.outputFile.mock.calls[0]).toEqual([`${distDir}/dir/file-0`, 'content-0'])
+            expect(mockFs.outputFile.mock.calls[1]).toEqual([`${distDir}/dir/file-1`, 'content-1'])
+          })
+      })
   })
 })

@@ -24,27 +24,30 @@ describe('Match Files', () => {
     expect(typeof matchFiles.sync).toBe('function')
   })
 
-  it('loads a list of files using glob patterns', async () => {
+  it('loads a list of files using glob patterns', () => {
     const search = '**'
     const expected = ['d1/template-1', 'd1/template-2']
 
-    expect((await matchFiles(search)).sort()).toEqual(expected)
     expect(matchFiles.sync(search).sort()).toEqual(expected)
+    return matchFiles(search)
+      .then((files) => expect(files.sort()).toEqual(expected))
   })
 
-  it('take the whole file search path', async () => {
+  it('take the whole file search path', () => {
     const search = 'd1/**'
     const expected = ['d1/template-1', 'd1/template-2']
 
-    expect((await matchFiles(search)).sort()).toEqual(expected)
     expect(matchFiles.sync(search).sort()).toEqual(expected)
+    return matchFiles(search)
+      .then((files) => expect(files.sort()).toEqual(expected))
   })
 
-  it('search under the given folder', async () => {
+  it('search under the given folder', () => {
     const search = { pattern: '**', cwd: 'd1' }
     const expected = ['template-1', 'template-2']
 
-    expect((await matchFiles(search)).sort()).toEqual(expected)
     expect(matchFiles.sync(search).sort()).toEqual(expected)
+    return matchFiles(search)
+      .then((files) => expect(files.sort()).toEqual(expected))
   })
 })
