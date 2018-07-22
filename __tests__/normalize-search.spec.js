@@ -24,7 +24,8 @@ const allPossibleOptions = [
 
 describe('Normalize Search', () => {
   const defaultSearch = {
-    gitignore: true,
+    cwd: process.cwd(),
+    dot: true,
     patterns: ['**'],
     ignore: [
       '.git/**',

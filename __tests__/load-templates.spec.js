@@ -9,19 +9,18 @@ const mockFs = (() => {
 })()
 jest.mock('fs-extra', () => mockFs)
 
-const mockMatchFiles = (() => {
-  const matchFiles = jest.fn()
-  matchFiles.sync = jest.fn()
-  matchFiles.matchFiles = matchFiles
-  return matchFiles
+const mockGlobby = (() => {
+  const globby = jest.fn()
+  globby.sync = jest.fn()
+  return globby
 })()
-jest.mock('../lib/match-files', () => mockMatchFiles)
+jest.mock('globby', () => mockGlobby)
 
 const { loadTemplates } = require('../lib/load-templates')
 
 beforeEach(() => {
-  mockMatchFiles.mockResolvedValue(['dir/file-0', 'dir/file-1'])
-  mockMatchFiles.sync.mockReturnValue(['dir/file-0', 'dir/file-1'])
+  mockGlobby.mockResolvedValue(['dir/file-0', 'dir/file-1'])
+  mockGlobby.sync.mockReturnValue(['dir/file-0', 'dir/file-1'])
 
   let asyncCounter = 0
   let syncCounter = 0
@@ -30,8 +29,8 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  mockMatchFiles.mockReset()
-  mockMatchFiles.sync.mockReset()
+  mockGlobby.mockReset()
+  mockGlobby.sync.mockReset()
   mockFs.readFile.mockReset()
   mockFs.readFileSync.mockReset()
   mockFs.outputFile.mockReset()
