@@ -46,8 +46,8 @@ describe('Process Template', () => {
 
   it('reads, process, and write files', () => {
     return Promise.all([
-      processTemplates('**', { flag: 'ASYNC' }),
-      processTemplates.sync('**', { flag: 'SYNC' })
+      processTemplates({ flag: 'ASYNC' }),
+      processTemplates.sync({ flag: 'SYNC' })
     ]).then(() => {
       expect(mockFs.outputFile).toHaveBeenCalledWith('dir/file-0', 'content-0-ASYNC')
       expect(mockFs.outputFile).toHaveBeenCalledWith('dir/file-1', 'content-1-ASYNC')

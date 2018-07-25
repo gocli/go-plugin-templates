@@ -33,14 +33,14 @@
 
 ### processTemplates
 
-`processTemplates(search, context, options)`
+`processTemplates(context, search, options)`
 
   - `search` {string|array|object} - as it is goes to `loadTemplates`
   - `context` {object} - as it is goes to `render`
   - `options` {object} - this will be given as it is (but `filename` will be changed) to `createTemplate` as options
 
 
-`processTemplates.sync(search, context, options)`
+`processTemplates.sync(context, search, options)`
 
 ## Templates API
 
