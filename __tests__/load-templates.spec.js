@@ -64,7 +64,7 @@ describe('Load Templates', () => {
 
   it('can write a bunch of loaded templates', () => {
     const distDir = `/destination-dir`
-    loadTemplates({ pattern: '**', cwd: distDir })
+    return loadTemplates({ pattern: '**', cwd: distDir })
       .then((templates) => {
         templates.write.sync({}, `${distDir}/`)
         expect(mockFs.outputFileSync.mock.calls[0]).toEqual([`${distDir}/dir/file-0`, 'content-0'])
@@ -79,6 +79,46 @@ describe('Load Templates', () => {
             expect(mockFs.outputFile.mock.calls[0]).toEqual([`${distDir}/dir/file-0`, 'content-0'])
             expect(mockFs.outputFile.mock.calls[1]).toEqual([`${distDir}/dir/file-1`, 'content-1'])
           })
+      })
+  })
+
+  it('process string as options argument', () => {
+    mockFs.outputFile.mockResolvedValue()
+    mockGlobby.mockResolvedValue(['file'])
+    return loadTemplates('search-pattern', 'dest/path/string')
+      .then((templates) => templates.write())
+      .then(() => {
+        expect(mockFs.outputFile).toHaveBeenCalledWith('dest/path/string', 'content-0')
+      })
+  })
+
+  it('process function as options argument', () => {
+    mockFs.outputFile.mockResolvedValue()
+    mockGlobby.mockResolvedValue(['file'])
+    return loadTemplates('search-pattern', () => 'dest/path/fn')
+      .then((templates) => templates.write())
+      .then(() => {
+        expect(mockFs.outputFile).toHaveBeenCalledWith('dest/path/fn', 'content-0')
+      })
+  })
+
+  it('process object as options argument', () => {
+    mockFs.outputFile.mockResolvedValue()
+    mockGlobby.mockResolvedValue(['file'])
+    return loadTemplates('search-pattern', { resolve: 'dest/path/object' })
+      .then((templates) => templates.write())
+      .then(() => {
+        expect(mockFs.outputFile).toHaveBeenCalledWith('dest/path/object', 'content-0')
+      })
+  })
+
+  it('set destination path when options is empty object', () => {
+    mockFs.outputFile.mockResolvedValue()
+    mockGlobby.mockResolvedValue(['file-name'])
+    return loadTemplates('search-pattern', {})
+      .then((templates) => templates.write())
+      .then(() => {
+        expect(mockFs.outputFile).toHaveBeenCalledWith('file-name', 'content-0')
       })
   })
 })
