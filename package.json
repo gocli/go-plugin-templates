@@ -1,6 +1,6 @@
 {
   "name": "go-plugin-templates",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Go plugin to use templates",
   "main": "./lib/plugin.js",
   "scripts": {
