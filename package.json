@@ -45,9 +45,9 @@
     "standard": "^11.0.0"
   },
   "dependencies": {
-    "ejs": "^2.5.7",
-    "fs-extra": "^5.0.0",
-    "globby": "^8.0.1"
+    "ejs": "2.5.7",
+    "fs-extra": "5.0.0",
+    "globby": "8.0.1"
   },
   "standard": {
     "globals": [
